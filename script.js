@@ -1209,6 +1209,8 @@
     if (!window.gsap) return;
     gsap.registerPlugin(ScrollTrigger);
 
+    const esMovil = window.innerWidth <= 860;
+
     // Burbujas decorativas (reducidas para rendimiento)
     const cont = $('#bubbles');
     for (let i = 0; i < 10; i++) {
@@ -1223,8 +1225,6 @@
     }
 
     // Timeline del hero.
-    // Se usa fromTo con valores explicitos: el tween no depende del valor final
-    // registrado en el momento de crearse, asi el resultado es siempre determinista.
     const tl = gsap.timeline({ delay: 0.15, autoRemoveChildren: false });
     tl.fromTo('.topbar', { y: -70, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', clearProps: 'transform' })
@@ -1256,32 +1256,42 @@
     }
     ScrollTrigger.create({ trigger: '#heroStats', start: 'top 92%', once: true, onEnter: animarContadores });
 
-    // Revelado por scroll
-    gsap.utils.toArray('.section-head, .kpi, .card, .route-card, .stop-item, .unit-card').forEach(el => {
-      gsap.fromTo(el, { y: 34, opacity: 0 },
-        {
-          y: 0, opacity: 1, duration: 0.75, ease: 'power3.out', clearProps: 'transform',
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true }
-        });
-    });
-
-    // Parallax suave del fondo
-    gsap.to('.sun-glow', { y: 120, scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom top', scrub: 1 } });
-    gsap.to('.hills', { y: -40, scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom top', scrub: 1 } });
-
-    // Nav activo según sección
-    const secciones = ['inicio', 'panel', 'rutas', 'unidades', 'paradas', 'incidencias', 'conductor'];
-    secciones.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      ScrollTrigger.create({
-        trigger: el, start: 'top 45%', end: 'bottom 45%',
-        onToggle: (self) => {
-          if (!self.isActive) return;
-          $$('.m-link').forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
-        }
+    // Revelado por scroll (solo en desktop para ahorrar recursos en movil)
+    if (!esMovil) {
+      gsap.utils.toArray('.section-head, .kpi, .card, .route-card, .stop-item, .unit-card').forEach(el => {
+        gsap.fromTo(el, { y: 34, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 0.75, ease: 'power3.out', clearProps: 'transform',
+            scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+          });
       });
-    });
+    } else {
+      $$('.section-head, .kpi, .card, .route-card, .stop-item, .unit-card').forEach(el => {
+        gsap.set(el, { y: 0, opacity: 1, clearProps: 'transform,opacity' });
+      });
+    }
+
+    // Parallax suave del fondo (solo desktop)
+    if (!esMovil) {
+      gsap.to('.sun-glow', { y: 120, scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom top', scrub: 1 } });
+      gsap.to('.hills', { y: -40, scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom top', scrub: 1 } });
+    }
+
+    // Nav activo según sección (solo desktop)
+    if (!esMovil) {
+      const secciones = ['inicio', 'panel', 'rutas', 'unidades', 'paradas', 'incidencias', 'conductor'];
+      secciones.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        ScrollTrigger.create({
+          trigger: el, start: 'top 45%', end: 'bottom 45%',
+          onToggle: (self) => {
+            if (!self.isActive) return;
+            $$('.m-link').forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+          }
+        });
+      });
+    }
 
     // Anillos KPI
     gsap.fromTo('.ring', { scale: 0.6, opacity: 0 },
