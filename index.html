@@ -574,5 +574,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="script.js"></script>
+<script>
+  /* Fallback JS: gira el anillo del loader aunque CSS animations estén bloqueadas */
+  (function(){
+    const ring = document.querySelector('.loader-ring');
+    if (!ring) return;
+    let ang = 0;
+    function girar(){
+      ang = (ang + 4) % 360;
+      ring.style.transform = 'rotate(' + ang + 'deg)';
+      ring.style.animation = 'none';
+      requestAnimationFrame(girar);
+    }
+    girar();
+  })();
+</script>
 </body>
 </html>
