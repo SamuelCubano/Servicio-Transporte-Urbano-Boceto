@@ -1326,7 +1326,7 @@
       l.classList.add('hidden');
       if (window.gsap) gsap.to(l, { opacity: 0, duration: 0.6, onComplete: () => l.remove() });
       else setTimeout(() => l.remove(), 600);
-    }, 1500);
+    }, 3000);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
