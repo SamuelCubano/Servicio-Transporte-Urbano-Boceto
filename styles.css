@@ -588,7 +588,7 @@ h1,h2,h3,h4{margin:0;font-family:var(--font-h);font-weight:600;letter-spacing:.2
 .gps-pos span{display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);font-weight:800}
 .gps-pos b{font-size:.88rem;color:var(--green-900);font-family:var(--font-h)}
 .gps-table-wrap{overflow-x:auto;margin-bottom:16px}
-.gps-table{width:100%;border-collapse:collapse;font-size:.83rem;min-width:560px}
+.gps-table{width:100%;border-collapse:collapse;font-size:.75rem;min-width:auto}
 .gps-table th{
   text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);
   padding:9px 11px;background:rgba(47,158,99,.1);font-weight:900;
@@ -774,53 +774,149 @@ h1,h2,h3,h4{margin:0;font-family:var(--font-h);font-weight:600;letter-spacing:.2
   .map-viewport{height:300px}
 }
 @media (max-width:375px){
-  .hero{padding-top:70px;padding-bottom:30px}
-  .hero-title{font-size:clamp(1.4rem,12vw,2.2rem)}
-  .hero-sub{font-size:.9rem}
-  .hero-stats .stat b{font-size:1.3rem}
-  .hero-stats .stat small{font-size:.65rem}
-  .kpi-body b{font-size:1.6rem}
-  .kpi-head{font-size:.7rem}
-  .card{padding:14px}
-  .section{padding:40px 12px}
-  .section-head{margin-bottom:22px}
-  .topbar{top:6px;width:calc(100% - 12px);padding:6px 10px}
-  .brand-mark{width:34px;height:34px}
-  .brand-text strong{font-size:.95rem}
-  .m-link{padding:8px 12px;font-size:.82rem}
-  .burger{width:36px;height:36px}
-  .burger span{width:16px;height:2px}
-  .btn-lg{padding:12px 18px;font-size:.88rem}
-  .btn{padding:10px 18px;font-size:.86rem}
+  body{font-size:.9rem}
+  .hero{padding-top:60px;padding-bottom:25px}
+  .hero-title{font-size:clamp(1.3rem,13vw,2rem)}
+  .hero-sub{font-size:.85rem;max-width:100%}
+  .hero-stats{grid-template-columns:1fr;gap:10px}
+  .hero-stats .stat{padding:12px}
+  .hero-stats .stat b{font-size:1.2rem}
+  .hero-stats .stat small{font-size:.6rem}
+  .hero-actions{flex-direction:column;gap:10px;margin:20px 0 25px}
+  .hero-actions .btn{width:100%;justify-content:center;padding:11px 20px;font-size:.9rem}
+  .hero-inner{gap:25px}
+  .hero-visual{max-width:100%}
+  .mini-map{height:150px}
+  .globe-card{padding:14px}
+  .globe-head{margin-bottom:10px}
+  .clock{font-size:.85rem}
+  .globe-foot{grid-template-columns:1fr;gap:6px;margin-top:8px}
+  .chip{padding:7px 9px}
+  .chip .k{font-size:.58rem}
+  .chip .v{font-size:.95rem}
+  .float-badge{display:none}
+  .section{padding:35px 10px}
+  .section-head{margin-bottom:20px}
+  .title{font-size:clamp(1.4rem,5vw,1.8rem);gap:10px}
+  .subtitle{font-size:.9rem}
+  .card{padding:16px}
+  .topbar{top:5px;width:calc(100% - 10px);padding:6px 10px;gap:10px}
+  .brand-mark{width:36px;height:36px}
+  .brand-mark svg{width:20px;height:20px;stroke-width:3}
+  .brand-text strong{font-size:1rem}
+  .brand-text small{display:none}
+  .menu{padding:10px}
+  .m-link{padding:10px 12px;font-size:.85rem}
+  .burger{width:36px;height:36px;padding:8px}
+  .burger span{width:17px;height:2px}
+  .btn{padding:10px 18px;font-size:.88rem}
+  .btn-lg{padding:12px 20px;font-size:.9rem}
+  .icon-btn{width:34px;height:34px}
+  .icon-btn svg{width:16px;height:16px}
+  .kpi-row{grid-template-columns:1fr;gap:12px}
+  .kpi{padding:16px}
+  .kpi-body b{font-size:1.7rem}
+  .kpi-head{font-size:.72rem}
+  .kpi-chip{font-size:.62rem;padding:3px 8px}
+  .panel-grid,.routes-layout,.stops-layout,.inc-layout,.driver-layout{grid-template-columns:1fr;gap:14px}
+  .driver-layout{grid-template-columns:1fr}
+  .card-reader{padding:18px}
+  .reader-visual{height:140px}
+  .reader-slot span{width:80px}
+  .reader-slot span:nth-child(2){width:62px}
+  .reader-slot span:nth-child(3){width:44px}
+  .reader-text{font-size:.7rem}
+  .input-icon input{padding:12px 14px 12px 40px;font-size:.9rem}
+  .gps-log{padding:0}
+  .gps-status{grid-template-columns:1fr;gap:8px}
+  .gps-pos{padding:9px 11px}
+  .gps-pos b{font-size:.8rem}
+  .gps-table-wrap{font-size:.75rem}
+  .gps-table th{font-size:.62rem;padding:7px 9px}
+  .gps-table td{padding:8px 9px;font-size:.75rem}
   .units-grid{grid-template-columns:1fr}
   .unit-card{padding:14px}
-  .stat{padding:14px}
-  .stat b{font-size:1.5rem}
-  .fab-stack{right:10px;bottom:10px}
-  .fab{height:46px;width:46px;padding:0 8px}
-  .fab svg{width:18px;height:18px}
-  .fab-label{font-size:.8rem}
-  #cityMap{height:280px}
-  .mini-map{height:170px}
-  .map-viewport{height:280px}
+  .uc-id{font-size:1.1rem}
+  .uc-plate{font-size:.68rem}
+  .uc-specs{grid-template-columns:1fr;gap:6px}
+  .spec{padding:7px}
+  .spec b{font-size:.95rem}
+  .spec small{font-size:.58rem}
+  .search-box{min-width:auto;max-width:100%}
+  .search-box input{padding:11px 14px 11px 40px;font-size:.88rem}
+  .filter-chips{gap:6px}
+  .chip-btn{padding:8px 12px;font-size:.78rem}
+  .stops-scroll{max-height:350px}
+  .stop-item{padding:10px 12px}
+  .stop-idx{width:36px;height:36px;font-size:.85rem}
+  .stop-info b{font-size:.88rem}
+  .stop-info small{font-size:.7rem}
+  .stop-eta b{font-size:.9rem}
+  .heat{height:240px}
+  .heat i{filter:blur(10px)}
+  .inc-layout{grid-template-columns:1fr}
+  .inc-item{padding:11px 13px}
+  .inc-item b{font-size:.85rem}
+  .inc-item p{font-size:.8rem}
+  .inc-meta{flex-wrap:wrap;gap:6px}
+  .tag{font-size:.65rem;padding:3px 8px}
+  .field{font-size:.85rem}
+  .field label,.field .label{font-size:.72rem}
+  .field input,.field select,.field textarea{padding:10px 13px;font-size:.88rem}
+  .gps-row{gap:8px}
+  .gps-value{font-size:.72rem}
+  .form-actions{gap:8px}
+  .sla-row{grid-template-columns:80px 1fr 55px;font-size:.75rem}
+  .sla-row b{font-size:.85rem}
+  .fab-stack{right:10px;bottom:10px;gap:10px}
+  .fab{height:48px;width:48px;padding:0 10px}
+  .fab svg{width:20px;height:20px}
+  .fab-label{font-size:.75rem}
   .loader-ring{width:100px;height:100px;border-width:4px}
   .loader-logo{width:42px;height:42px}
+  .loader-logo svg{stroke-width:3}
   .loader-text{font-size:.8rem}
-  .float-badge{display:none}
-  .traf-item{grid-template-columns:1fr;gap:6px}
+  .foot-grid{grid-template-columns:1fr;gap:22px}
+  .foot-col{font-size:.82rem}
+  .foot-col h4{font-size:.88rem}
+  .foot-col li{font-size:.8rem}
+  .foot-bottom{flex-direction:column;gap:6px;text-align:center;font-size:.72rem}
+  .modal{width:min(420px,92vw);padding:20px}
+  .modal-body{padding:20px}
+  .modal-title{font-size:1.2rem}
+  .modal-sub{font-size:.82rem}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-cell{padding:10px}
+  .detail-cell b{font-size:1rem}
+  .unit-detail-head{flex-direction:column;text-align:center;gap:10px}
+  .unit-detail-head .uc-avatar{width:48px;height:48px;font-size:1rem}
+  .emerg-grid{grid-template-columns:1fr}
+  .emerg-opt{padding:14px}
+  .emerg-opt b{font-size:.9rem}
+  .emerg-opt small{font-size:.72rem}
+  .toast-stack{top:80px;right:10px;width:calc(100% - 20px)}
+  .toast{padding:12px 14px}
+  .toast b{font-size:.82rem}
+  .toast small{font-size:.75rem}
+  .traf-item{grid-template-columns:1fr;gap:6px;padding:10px 12px}
+  .traf-name{font-size:.82rem}
+  .traf-bar{height:6px}
   .traf-state{display:none}
   .traf-delta{display:none}
   .route-card{padding:12px}
-  .stop-item{padding:10px 12px}
-  .stop-info b{font-size:.88rem}
-  .stop-eta b{font-size:.95rem}
-  .inc-item{padding:11px 13px}
-  .inc-item b{font-size:.85rem}
-  .gps-pos{padding:9px 11px}
-  .gps-pos b{font-size:.82rem}
-  .foot-bottom{flex-direction:column;gap:6px;text-align:center}
-  .foot-grid{grid-template-columns:1fr;gap:26px}
-  .foot-col ul{font-size:.8rem}
+  .rc-name{font-size:.95rem}
+  .rc-desc{font-size:.75rem}
+  .rc-meta{flex-wrap:wrap}
+  .rc-code{font-size:.65rem}
+  .alert-item{padding:10px 12px}
+  .alert-body b{font-size:.82rem}
+  .alert-body small{font-size:.72rem}
+  .alert-min{font-size:.9rem}
+  .sun-glow{width:300px;height:300px;top:-80px;right:-60px}
+  .cloud-1{width:140px;height:48px;top:15%;left:-5%}
+  .cloud-2{width:160px;height:48px;top:30%;left:-15%}
+  .cloud-3{width:100px;height:36px;top:10%;left:40%}
+  .cloud-4{width:130px;height:40px;top:45%;left:-10%}
 }
 
 /* ============ ACCESIBILIDAD ============ */
