@@ -497,35 +497,39 @@
   /* --- animacion de las unidades sobre las rutas --- */
   let ultimoFrame = performance.now();
   let frameMini = 0;
+  let tick = 0;
 
   function moverUnidades(ts) {
     const dt = Math.min(64, ts - ultimoFrame);
     ultimoFrame = ts;
-    frameMini++;
+    tick++;
 
-    unidades.forEach(u => {
-      if (u.estado === 'mantenimiento') {
-        if (u._marca) u._marca.setOpacity(0.45);
-        return;
-      }
-      u.pos += u.velMs * (dt / 16.67) * u.dir;
-      if (u.pos > 1) { u.pos = 1; u.dir = -1; }
-      if (u.pos < 0) { u.pos = 0; u.dir = 1; }
+    /* solo calcular posiciones cada 2 frames para ahorrar CPU */
+    if (tick % 2 === 0) {
+      unidades.forEach(u => {
+        if (u.estado === 'mantenimiento') {
+          if (u._marca) u._marca.setOpacity(0.45);
+          return;
+        }
+        u.pos += u.velMs * (dt / 16.67) * u.dir;
+        if (u.pos > 1) { u.pos = 1; u.dir = -1; }
+        if (u.pos < 0) { u.pos = 0; u.dir = 1; }
 
-      const r = RUTAS.find(x => x.id === u.ruta);
-      const pos = puntoEnRuta(r, u.pos);
-      u.lat = pos.lat; u.lng = pos.lng; u.ang = pos.ang;
+        const r = RUTAS.find(x => x.id === u.ruta);
+        const pos = puntoEnRuta(r, u.pos);
+        u.lat = pos.lat; u.lng = pos.lng; u.ang = pos.ang;
 
-      if (u._marca) {
-        u._marca.setLatLng([pos.lat, pos.lng]);
-        const cuerpo = u._marca.getElement && u._marca.getElement().querySelector('.bus-marker');
-        if (cuerpo) cuerpo.style.transform = 'rotate(' + (pos.ang + (u.dir < 0 ? 180 : 0)).toFixed(1) + 'deg)';
-      }
-      // el mini mapa se refresca a menor frecuencia para ahorrar recursos
-      if (frameMini % 3 === 0 && u._marcaMini) {
-        u._marcaMini.setLatLng([pos.lat, pos.lng]);
-      }
-    });
+        if (u._marca) {
+          u._marca.setLatLng([pos.lat, pos.lng]);
+          const cuerpo = u._marca.getElement && u._marca.getElement().querySelector('.bus-marker');
+          if (cuerpo) cuerpo.style.transform = 'rotate(' + (pos.ang + (u.dir < 0 ? 180 : 0)).toFixed(1) + 'deg)';
+        }
+        if (frameMini % 3 === 0 && u._marcaMini) {
+          u._marcaMini.setLatLng([pos.lat, pos.lng]);
+        }
+      });
+      frameMini++;
+    }
 
     requestAnimationFrame(moverUnidades);
   }
@@ -1205,9 +1209,9 @@
     if (!window.gsap) return;
     gsap.registerPlugin(ScrollTrigger);
 
-    // Burbujas decorativas
+    // Burbujas decorativas (reducidas para rendimiento)
     const cont = $('#bubbles');
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 10; i++) {
       const b = document.createElement('div');
       b.className = 'bubble';
       const size = randInt(8, 34);
