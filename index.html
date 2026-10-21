@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TransUrbano | Servicio de Transporte Urbano</title>
+<meta name="description" content="Plataforma de gestión del Servicio de Transporte Urbano: rutas activas, tráfico en vivo, unidades disponibles, reporte de incidencias y seguimiento GPS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= SKY / BACKGROUND ================= -->
+<div class="scene" aria-hidden="true">
+  <div class="sky-gradient"></div>
+  <div class="sun-glow"></div>
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+  <div class="hills"></div>
+  <div class="bubbles" id="bubbles"></div>
+</div>
+
+<!-- ================= LOADER ================= -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-logo">
+    <svg viewBox="0 0 64 64"><path d="M10 40h44v10a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4zM16 40V22a16 16 0 0 1 32 0v18"/></svg>
+  </div>
+  <p class="loader-text">Cargando TransUrbano<span class="dots"><i>.</i><i>.</i><i>.</i></span></p>
+</div>
+
+<!-- ================= NAV ================= -->
+<header class="topbar" id="topbar">
+  <a class="brand" href="#inicio">
+    <span class="brand-mark">
+      <svg viewBox="0 0 64 64"><path d="M10 40h44v10a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4zM16 40V22a16 16 0 0 1 32 0v18"/></svg>
+    </span>
+    <span class="brand-text">
+      <strong>TransUrbano</strong>
+      <small>Servicio de Transporte Urbano</small>
+    </span>
+  </a>
+
+  <nav class="menu" id="menu">
+    <a href="#inicio" class="m-link active">Inicio</a>
+    <a href="#panel" class="m-link">Panel</a>
+    <a href="#rutas" class="m-link">Rutas</a>
+    <a href="#unidades" class="m-link">Unidades</a>
+    <a href="#paradas" class="m-link">Paradas</a>
+    <a href="#incidencias" class="m-link">Incidencias</a>
+    <a href="#conductor" class="m-link">Conductor</a>
+    <button class="btn-glass btn-user" id="btnTarjeta">
+      <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="8.5" cy="11.5" r="2.5"/><path d="M5 17c.8-1.6 2-2.4 3.5-2.4S11.2 15.4 12 17"/></svg>
+      <span id="userChipText">Identificar tarjeta</span>
+    </button>
+  </nav>
+
+  <button class="burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+</header>
+
+<main>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="inicio">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="pill"><i class="dot-live"></i> Sistema operativo en tiempo real</span>
+      <h1 class="hero-title">
+        <span class="line">Movilidad urbana</span>
+        <span class="line grad">sin incertidumbre</span>
+      </h1>
+      <p class="hero-sub">
+        Rutas activas, tráfico en vivo, disponibilidad de unidades y registro GPS de tiempos.
+        El sistema ofrece una solución integral a la incertidumbre del transporte y su pasaje,
+        la reclamación de incidentes y la información inmediata de datos de las unidades.
+      </p>
+      <div class="hero-actions">
+        <a href="#rutas" class="btn btn-primary btn-lg">
+          <svg viewBox="0 0 24 24"><path d="M9 20l-6-2V6l6 2 6-2 6 2v12l-6-2-6 2z"/></svg>
+          Ver mapa en vivo
+        </a>
+        <a href="#incidencias" class="btn btn-glass btn-lg">
+          <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          Reportar incidencia
+        </a>
+      </div>
+
+      <div class="hero-stats" id="heroStats">
+        <div class="stat glass">
+          <span class="stat-ico ico-green"><svg viewBox="0 0 24 24"><path d="M9 20l-6-2V6l6 2 6-2 6 2v12l-6-2-6 2z"/></svg></span>
+          <b class="counter" data-target="8">0</b>
+          <small>Rutas activas</small>
+        </div>
+        <div class="stat glass">
+          <span class="stat-ico ico-blue"><svg viewBox="0 0 24 24"><path d="M5 17h14M6 17V9l6-4 6 4v8"/></svg></span>
+          <b class="counter" data-target="18">0</b>
+          <small>Unidades disponibles</small>
+        </div>
+        <div class="stat glass">
+          <span class="stat-ico ico-amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <b class="counter" data-target="47">0</b>
+          <small>Paradas activas</small>
+        </div>
+        <div class="stat glass">
+          <span class="stat-ico ico-sky"><svg viewBox="0 0 24 24"><path d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11z"/><circle cx="12" cy="11" r="3"/></svg></span>
+          <b class="counter" data-target="96">0</b>
+          <small>% eficiencia</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="globe-card glass" id="globeCard">
+        <div class="globe-head">
+          <span class="live-tag"><i></i> EN VIVO</span>
+          <span class="clock" id="clock">--:--:--</span>
+        </div>
+        <div class="mini-map" id="miniMap"></div>
+        <div class="globe-foot">
+          <div class="chip"><span class="k">Unidades en ruta</span><span class="v" id="kpiUnits">0</span></div>
+          <div class="chip"><span class="k">Retraso prom.</span><span class="v" id="kpiDelay">0 min</span></div>
+          <div class="chip"><span class="k">Incidencias hoy</span><span class="v" id="kpiIncidents">0</span></div>
+        </div>
+      </div>
+      <div class="float-badge fb-1 glass"><span class="fb-ico ico-green"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div><b>Tarjeta validada</b><small>Conductor #15827344</small></div></div>
+      <div class="float-badge fb-2 glass"><span class="fb-ico ico-amber"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><div><b>Incidencia registrada</b><small>Retraso en Av. Bolívar</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PANEL DE CONTROL ================= -->
+<section class="section" id="panel">
+  <div class="section-head">
+    <h2 class="title"><span class="title-bar"></span>Panel de control operativo</h2>
+    <p class="subtitle">Estado general de la flota, red de rutas y semáforo del tráfico en tiempo real.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi glass">
+      <div class="kpi-head"><span>Unidades en servicio</span><span class="kpi-chip ok">+3 hoy</span></div>
+      <div class="kpi-body">
+        <b class="counter" data-target="86">0</b>
+        <div class="ring" style="--p:86"><span>86%</span></div>
+      </div>
+      <small>De 104 unidades totales en la flota</small>
+    </div>
+    <div class="kpi glass">
+      <div class="kpi-head"><span>Rutas con tráfico fluido</span><span class="kpi-chip ok">Estable</span></div>
+      <div class="kpi-body">
+        <b class="counter" data-target="14">0</b>
+        <div class="ring ring-green" style="--p:58"><span>58%</span></div>
+      </div>
+      <small>6 rutas moderadas · 4 rutas congestionadas</small>
+    </div>
+    <div class="kpi glass">
+      <div class="kpi-head"><span>Retraso promedio</span><span class="kpi-chip warn">+1.2 min</span></div>
+      <div class="kpi-body">
+        <b class="counter" data-target="4">0</b><span class="unit-min">min</span>
+        <div class="ring ring-amber" style="--p:32"><span>32%</span></div>
+      </div>
+      <small>Sobre el horario programado de paradas</small>
+    </div>
+    <div class="kpi glass">
+      <div class="kpi-head"><span>Incidencias abiertas</span><span class="kpi-chip bad">Crítica 1</span></div>
+      <div class="kpi-body">
+        <b class="counter" data-target="12">0</b>
+        <div class="ring ring-red" style="--p:48"><span>48%</span></div>
+      </div>
+      <small>Resueltas automáticamente: 87%</small>
+    </div>
+  </div>
+
+  <div class="panel-grid">
+    <div class="card glass traffic-card">
+      <div class="card-head">
+        <h3>Identificación de tráfico</h3>
+        <span class="seg" id="trafficSeg">
+          <button class="seg-btn active" data-mode="realtime">Tiempo real</button>
+          <button class="seg-btn" data-mode="avg">Promedio</button>
+        </span>
+      </div>
+      <ul class="traffic-list" id="trafficList"></ul>
+    </div>
+
+    <div class="card glass alerts-card">
+      <div class="card-head">
+        <h3>Avisos de llegadas tardías</h3>
+        <span class="badge-pulse" id="alertCount">0</span>
+      </div>
+      <ul class="alerts-list" id="alertsList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RUTAS ================= -->
+<section class="section" id="rutas">
+  <div class="section-head">
+    <h2 class="title"><span class="title-bar"></span>Rutas activas</h2>
+    <p class="subtitle">Calles y avenidas de la ciudad con flujo de unidades en vivo. Selecciona una ruta para ver su recorrido.</p>
+  </div>
+
+  <div class="routes-layout">
+    <div class="card glass map-card">
+      <div class="map-toolbar">
+        <div class="map-legend">
+          <span><i class="lg lg-route"></i> Ruta activa</span>
+          <span><i class="lg lg-stop"></i> Parada</span>
+          <span><i class="lg lg-unit"></i> Unidad</span>
+        </div>
+        <div class="map-tools">
+          <button class="icon-btn" id="btnCapa" title="Cambiar mapa base"><svg viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></svg></button>
+          <button class="icon-btn" id="btnZoomIn" title="Acercar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="icon-btn" id="btnZoomOut" title="Alejar"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+          <button class="icon-btn" id="btnLocate" title="Mi ubicación"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button>
+        </div>
+      </div>
+      <div class="map-viewport" id="mapViewport">
+        <div id="cityMap"></div>
+        <div class="map-scale"><span></span>200 m</div>
+      </div>
+      <div class="map-foot">
+        <span class="live-tag"><i></i> Posiciones actualizadas cada 3 s</span>
+        <span class="muted" id="mapHint">Pasa el cursor sobre una unidad o parada</span>
+      </div>
+    </div>
+
+    <aside class="routes-side">
+      <div class="card glass">
+        <div class="card-head"><h3>Detalle de rutas</h3></div>
+        <div class="route-list" id="routeList"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= UNIDADES ================= -->
+<section class="section" id="unidades">
+  <div class="section-head">
+    <h2 class="title"><span class="title-bar"></span>Unidades disponibles</h2>
+    <p class="subtitle">Características de cada unidad: puestos, espacios reservados, conductor responsable y estado operativo.</p>
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="text" id="unitSearch" placeholder="Buscar por ID, placa o conductor...">
+    </div>
+    <div class="filter-chips" id="unitFilters">
+      <button class="chip-btn active" data-f="all">Todas</button>
+      <button class="chip-btn" data-f="operativa">Operativas</button>
+      <button class="chip-btn" data-f="parada">En parada</button>
+      <button class="chip-btn" data-f="mantenimiento">Mantenimiento</button>
+      <button class="chip-btn" data-f="accessible">Accesible</button>
+    </div>
+  </div>
+
+  <div class="units-grid" id="unitsGrid"></div>
+</section>
+
+<!-- ================= PARADAS ================= -->
+<section class="section" id="paradas">
+  <div class="section-head">
+    <h2 class="title"><span class="title-bar"></span>Ubicación de paradas</h2>
+    <p class="subtitle">Paradas activas con tiempo estimado de llegada y capacidad.</p>
+  </div>
+
+  <div class="stops-layout">
+    <div class="card glass stops-card">
+      <div class="card-head">
+        <h3>Próximas paradas</h3>
+        <input type="search" id="stopSearch" class="mini-input" placeholder="Filtrar parada...">
+      </div>
+      <div class="stops-scroll" id="stopsList"></div>
+    </div>
+    <div class="card glass stop-map-card">
+      <div class="card-head"><h3>Distribución de paradas</h3><span class="muted">Zona centro</span></div>
+      <div class="heat" id="heatMap"></div>
+      <p class="muted small">Densidad de paradas por sector. Mayor concentración = más cobertura y menor espera.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INCIDENCIAS ================= -->
+<section class="section" id="incidencias">
+  <div class="section-head">
+    <h2 class="title"><span class="title-bar"></span>Reporte de incidencias</h2>
+    <p class="subtitle">Canal de reclamación: los tiempos de respuesta se registran y se notifican al usuario.</p>
+  </div>
+
+  <div class="inc-layout">
+    <form class="card glass inc-form" id="incForm" novalidate>
+      <div class="form-head"><h3>Nueva incidencia</h3><span class="chip chip-green">Respuesta < 5 min</span></div>
+
+      <div class="field">
+        <label for="incTipo">Tipo de incidencia</label>
+        <select id="incTipo" required>
+          <option value="">Seleccione...</option>
+          <option value="retraso">Retraso prolongado</option>
+          <option value="sobrecupo">Sobrecupo / falta de espacio</option>
+          <option value="unidad">Falla mecánica de la unidad</option>
+          <option value="parada">Parada no operativa</option>
+          <option value="ruta">Desvío de ruta</option>
+          <option value="seguridad">Seguridad / conducta</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="incRuta">Ruta</label>
+          <select id="incRuta" required></select>
+        </div>
+        <div class="field">
+          <label for="incSeveridad">Severidad</label>
+          <select id="incSeveridad" required>
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Crítica</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="incDesc">Descripción</label>
+        <textarea id="incDesc" rows="4" required placeholder="Describa lo ocurrido, hora aproximada y detalle de la unidad..."></textarea>
+      </div>
+
+      <div class="field">
+        <span class="label">Ubicación de la incidencia</span>
+        <div class="gps-row">
+          <button type="button" class="btn btn-soft" id="btnGps">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+            Obtener GPS
+          </button>
+          <span class="gps-value" id="gpsValue">Sin coordenadas — use el botón o escríbalas</span>
+        </div>
+        <input type="text" id="incCoords" placeholder="Latitud, Longitud (opcional manual)" class="full-input">
+      </div>
+
+      <div class="field">
+        <label for="incUnidad">Unidad afectada</label>
+          <select id="incUnidad"><option value="">No especificada</option></select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+          Enviar reporte
+        </button>
+        <button type="reset" class="btn btn-glass">Limpiar</button>
+      </div>
+    </form>
+
+    <div class="inc-side">
+      <div class="card glass">
+        <div class="card-head"><h3>Seguimiento</h3><span class="muted" id="incTotal">0 reportes</span></div>
+        <ul class="inc-list" id="incList"></ul>
+      </div>
+      <div class="card glass sla-card">
+        <h3>Tiempos de respuesta</h3>
+        <div class="sla-row"><span>Acknowledge</span><div class="bar"><i style="width:78%"></i></div><b>1.8 min</b></div>
+        <div class="sla-row"><span>Resolución</span><div class="bar"><i style="width:54%"></i></div><b>6.4 min</b></div>
+        <div class="sla-row"><span>Satisfacción</span><div class="bar"><i style="width:92%"></i></div><b>94%</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONDUCTOR / CONDUCTOR ================= -->
+<section class="section" id="conductor">
+  <div class="section-head">
+    <h2 class="title"><span class="title-bar"></span>Estación del conductor</h2>
+    <p class="subtitle">Identificación con tarjeta, asignación de unidad y registro GPS de tiempos de llegada.</p>
+  </div>
+
+  <div class="driver-layout">
+    <div class="card glass card-reader">
+      <div class="reader-visual">
+        <div class="reader-glow"></div>
+        <div class="reader-slot"><span></span><span></span><span></span></div>
+        <div class="reader-text">Inserte o acerque la tarjeta</div>
+      </div>
+      <form id="tarjetaForm" class="tarjeta-form">
+        <label for="tarjetaInput">Número de tarjeta / cédula</label>
+        <div class="input-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="8.5" cy="11.5" r="2.5"/><path d="M5 17c.8-1.6 2-2.4 3.5-2.4S11.2 15.4 12 17"/></svg>
+          <input type="text" id="tarjetaInput" placeholder="V-00000000" maxlength="14" autocomplete="off">
+        </div>
+        <p class="hint">Pruebe <b>4417</b> (conductor) o <b>1024</b> (pasajero).</p>
+        <button class="btn btn-primary btn-block" type="submit">
+          <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+          Validar identidad
+        </button>
+      </form>
+      <div class="card-session" id="cardSession" hidden>
+        <div class="session-avatar" id="sessionAvatar">—</div>
+        <div class="session-info">
+          <b id="sessionName">—</b>
+          <span id="sessionRole">—</span>
+          <span class="chip chip-green" id="sessionCard">—</span>
+        </div>
+        <button class="btn btn-glass btn-sm" id="btnLogout">Salir</button>
+      </div>
+    </div>
+
+    <div class="card glass gps-log">
+      <div class="card-head">
+        <h3>Registro GPS de tiempos</h3>
+        <span class="live-tag"><i></i> <span id="gpsClock">--:--:--</span></span>
+      </div>
+      <div class="gps-status">
+        <div class="gps-pos"><span>Posición actual</span><b id="gpsPos">Lat: — / Lon: —</b></div>
+        <div class="gps-pos"><span>Unidad asignada</span><b id="gpsUnit">Sin asignar</b></div>
+        <div class="gps-pos"><span>Precisión</span><b id="gpsAcc">— m</b></div>
+      </div>
+      <div class="gps-table-wrap">
+        <table class="gps-table">
+          <thead><tr><th>Parada</th><th>Programado</th><th>Real (GPS)</th><th>Diferencia</th><th>Estado</th></tr></thead>
+          <tbody id="gpsRows"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-soft btn-block" id="btnSimularGps">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11z"/><circle cx="12" cy="11" r="3"/></svg>
+        Simular recorrido GPS (registrar llegadas)
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="foot-grid">
+    <div class="foot-col">
+      <a class="brand footer-brand" href="#inicio">
+        <span class="brand-mark"><svg viewBox="0 0 64 64"><path d="M10 40h44v10a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4zM16 40V22a16 16 0 0 1 32 0v18"/></svg></span>
+        <span class="brand-text"><strong>TransUrbano</strong><small>Servicio de Transporte Urbano</small></span>
+      </a>
+      <p class="muted">Solución a la incertidumbre del transporte y su pasaje, reclamación de incidentes e información inmediata de datos de las unidades.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Funcionalidad</h4>
+      <ul>
+        <li>Rutas activas y tráfico</li>
+        <li>Unidades y características</li>
+        <li>Reporte de incidencias</li>
+        <li>Ubicación de paradas</li>
+        <li>Avisos de llegadas tardías</li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>No funcional</h4>
+      <ul>
+        <li>Identificación con tarjeta</li>
+        <li>Ubicación espacial GPS</li>
+        <li>Registro de tiempos</li>
+        <li>Botón de emergencia</li>
+        <li>Botón de reporte</li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Proyecto</h4>
+      <ul>
+        <li>Universidad — IUJO</li>
+        <li>Curso: Ingeniería de Software</li>
+        <li>Producto de demostración</li>
+        <li>Datos simulados en el navegador</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 TransUrbano · Proyecto universitario</span>
+    <span>Hecho con HTML, CSS, JS y GSAP</span>
+  </div>
+</footer>
+
+</main>
+
+<!-- ================= FLOATING ACTIONS ================= -->
+<div class="fab-stack">
+  <button class="fab fab-report" id="btnReporte" title="Reportar incidencia">
+    <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <span class="fab-label">Reportar</span>
+  </button>
+  <button class="fab fab-emerg" id="btnEmergencia" title="Emergencia">
+    <span class="fab-pulse"></span>
+    <svg viewBox="0 0 24 24"><path d="M12 2 2 7v6c0 5 4.2 8.8 10 9 5.8-.2 10-4 10-9V7z"/><path d="M12 8v5"/><circle cx="12" cy="16.2" r="1"/></svg>
+    <span class="fab-label">Emergencia</span>
+  </button>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Cerrar">&times;</button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="script.js"></script>
+</body>
+</html>
